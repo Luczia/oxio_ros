@@ -1,42 +1,17 @@
 <?xml version="1.0" ?>
 
-<robot name="Movee">
+<robot name="Movee" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<!--Matrix computation macros-->
-  <macro name="cylinder_inertia" params="m r h">
-        <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
-                  iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
-                  izz="${m*r*r/2}" /> 
-  </macro>
-
-  <macro name="box_inertia" params="m x y z">
-        <inertia  ixx="${m*(y*y+z*z)/12}" ixy = "0" ixz = "0"
-                  iyy="${m*(x*x+z*z)/12}" iyz = "0"
-                  izz="${m*(x*x+z*z)/12}" /> 
-  </macro>
-
-  <macro name="sphere_inertia" params="m r">
-        <inertia  ixx="${2*m*r*r/5}" ixy = "0" ixz = "0"
-                  iyy="${2*m*r*r/5}" iyz = "0"
-                  izz="${2*m*r*r/5}" /> 
-  </macro>
 
   
-  <!-- <xacro:include filename="$(find movee_description)/urdf/friction.xacro"/>
-  <xacro:arg name="training_wheels" default="true" />
+  <!-- <xacro:include filename="$(find movee_description)/urdf/friction.xacro"/> -->
+  <xacro:include filename="inertia_matrix_macro.xacro"/> 
+  <xacro:include filename="robot_parameters.xacro" />
+  <xacro:include filename="friction.xacro"/>
+  <xacro:include filename="sensors.xacro" />
+  
 
-  <xacro:property name="wheel_mass" value="0.5" />
-  <xacro:property name="wheel_radius" value="0.1" />
-  <xacro:property name="wheel_thickness" value="0.05" />
-  <xacro:property name="wheelbase" value="0.5" />
-  <xacro:property name="thigh_length" value="0.4" />
-  <xacro:property name="thigh_conrod_length" value="0.5" />
-  <xacro:property name="calf_length" value="0.4" />
 
-  <xacro:property name="body_mass" value="10" />
- 
-  <xacro:property name="depth_camera_name" value="Creative"/>
-  <xacro:property name="depth_camera_mass" value="0.1"/> -->
     
 <!-- ############################################################################################# -->
  <!-- ############################ Joint and Transmissions definition ############################ -->
@@ -54,7 +29,8 @@
     <child link="calf_right"/>
     <origin rpy="1.8  0  0" xyz="0  0  -0.38"/>
     <axis xyz="1  0  0"/>
-    <limit effort="-1.0" lower="0.1" upper="1" velocity="-1.0"/>
+    <limit effort="100" lower="0.1" upper="1" velocity="12"/>
+    <dynamics damping="0.1"/>
     <!-- <limit effort="-1.0" lower="-3.14" upper="3.14" velocity="-1.0"/> -->
   </joint>  
   <transmission name="knee_pivot_right_trans">
@@ -81,7 +57,8 @@
     <child link="calf_left"/>
     <origin rpy="1.8  0  0" xyz="0 0 -0.38"/>
     <axis xyz="1  0  0"/>
-    <limit effort="-1.0" lower="0.1" upper="1" velocity="-1.0"/>
+    <limit effort="100" lower="0.1" upper="1" velocity="12"/>
+    <dynamics damping="0.1"/>
     <!-- <limit effort="-1.0" lower="-3.14" upper="3.14" velocity="-1.0"/> -->
   </joint>
   <transmission name="knee_pivot_left_trans">
@@ -109,8 +86,9 @@
     <child link="thigh_right"/>
     <origin rpy="-0.9  0  0" xyz="0.17  0  0.9"/>
     <axis xyz="1  0  0"/>
-    <limit effort="-1.0" lower="0.4" upper="1" velocity="-1.0"/>
-    <limit effort="-1.0" lower="-3.14" upper="3.14" velocity="-1.0"/>
+    <limit effort="100" lower="0.4" upper="1" velocity="12"/>
+    <dynamics damping="0.1"/>
+    
   </joint>
    <transmission name="hip_pivot_right_trans">
     <type>transmission_interface/SimpleTransmission</type>
@@ -127,7 +105,8 @@
     <child link="thigh_conrod_right"/>
     <origin rpy="-0.9  0  0" xyz="0.17  0.0  1"/>
     <axis xyz="1  0  0"/>
-    <limit effort="-1.0" lower="-3.14" upper="3.14"  velocity="-1.0"/>
+    <limit effort="100" lower="-3.14" upper="3.14"  velocity="12"/>
+    <dynamics damping="0.1"/>
     <mimic joint ="hip_pivot_right" multiplier="1" offset ="0"/>
   
   </joint>
@@ -137,8 +116,9 @@
     <child link="thigh_left"/>
     <origin rpy="-0.9 0  0" xyz="-0.17 0  0.9"/>
     <axis xyz="1  0  0"/>
-    <limit effort="-1.0" lower="0.4" upper="1"  velocity="-1.0"/>
-    <limit effort="-1.0" lower="-3.14" upper="3.14" velocity="-1.0"/>
+    <limit effort="100" lower="0.4" upper="1"  velocity="12"/>
+    <limit effort="100" lower="-3.14" upper="3.14" velocity="12"/>
+    <dynamics damping="0.1"/>
   </joint>
    <transmission name="hip_pivot_left_trans">
     <type>transmission_interface/SimpleTransmission</type>
@@ -155,7 +135,8 @@
     <child link="thigh_conrod_left"/>
     <origin rpy="-0.9  0  0" xyz="-0.17  0.0  1"/>
     <axis xyz="1  0  0"/>
-    <limit effort="-1.0" lower="-3.14" upper="3.14"  velocity="-1.0"/>
+    <limit effort="-1.0" lower="-3.14" upper="3.14"  velocity="12"/>
+    <dynamics damping="0.1"/>
     <mimic joint ="hip_pivot_left" multiplier="1" offset ="0"/>
 
   </joint>
@@ -204,12 +185,10 @@
 
 <!-- ############################################################################################# -->
 <!-- ################################# Link definition ########################################### -->
- <link name="base_link">
-    <!-- <visual>
-      <geometry>
-        <cylinder length="0.6" radius="0.2"/>
-      </geometry>
-    </visual> -->
+ <link name="base_link"> <!-- Keep a dummy base_link empty to avoid without inertial property to avoid bug in KDL -->
+    <xacro:if value="$(arg training_wheels)" >  
+      <xacro:include filename="training_wheel.xacro"/>
+    </xacro:if> 
   </link>
 
   <link name="chassis_link">
@@ -217,7 +196,7 @@
       <mass value="10"/>
       <origin rpy="0  0  0" xyz="0  -0.07  0.9"/>
       <!-- <inertia ixx="0.0004" ixy="0" ixz="0" iyy="0.0004" iyz="0" izz="0.0005"/> -->
-      <box_inertia m="10" x="0.3" y="0.35" z="0.25"/>
+      <xacro:box_inertia m="10" x="0.3" y="0.35" z="0.25"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0   0   0.94"/>
@@ -231,15 +210,19 @@
       <mesh filename ="package://movee_description/meshes/pelvis.dae" scale="0.001 0.001 0.001"/>
       <!-- <box size="0.3 0.35 0.25"/>  -->
       </geometry>
-    </visual>    
+    </visual>     
   </link>
+
+  <gazebo reference="chassis_link">
+  <material>Gazebo/Orange</material>
+  </gazebo>
 
   <link name="thigh_right">
     <inertial>
       <mass value="0.5"/>
       <origin rpy="0  0  0" xyz="0  0  -0.2"/>
       <!-- <inertia ixx="4.9e-06" ixy="0" ixz="0" iyy="4.9e-06" iyz="0" izz="3.5e-08"/> -->
-      <cylinder_inertia m="0.5" r="0.015" h="0.4"/>
+      <xacro:cylinder_inertia m="0.5" r="0.015" h="0.4"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0   -0.2"/>
@@ -254,12 +237,15 @@
       </geometry>
     </visual>
   </link>
+   <gazebo reference="thigh_right">
+       <material>Gazebo/LightGrey</material>
+    </gazebo>
   <link name="thigh_conrod_right">
     <inertial>
       <mass value="0.5"/>
       <origin rpy="0  0  0" xyz="0  0  -0.2"/>
       <!-- <inertia ixx="4.9e-06" ixy="0" ixz="0" iyy="4.9e-06" iyz="0" izz="3.5e-08"/> -->
-      <cylinder_inertia m="0.5" r="0.005" h="0.45"/>
+      <xacro:cylinder_inertia m="0.5" r="0.005" h="0.45"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0   -0.2"/>
@@ -280,7 +266,7 @@
       <mass value="0.5"/>
       <origin rpy="0  0  0" xyz="0  0  -0.2"/>
       <!-- <inertia ixx="4.9e-06" ixy="0" ixz="0" iyy="4.9e-06" iyz="0" izz="3.5e-08"/> -->
-      <cylinder_inertia m="0.5" r="0.015" h="0.4"/>
+      <xacro:cylinder_inertia m="0.5" r="0.015" h="0.4"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0   -0.19"/>
@@ -300,7 +286,7 @@
       <mass value="0.5"/>
       <origin rpy="0  0  0" xyz="0  0  -0.2"/>
       <!-- <inertia ixx="4.9e-06" ixy="0" ixz="0" iyy="4.9e-06" iyz="0" izz="3.5e-08"/> -->
-      <cylinder_inertia m="0.5" r="0.005" h="0.45"/>
+      <xacro:cylinder_inertia m="0.5" r="0.005" h="0.45"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0   -0.2"/>
@@ -322,7 +308,7 @@
       <mass value="0.5"/>
       <origin rpy="0  0  0" xyz="0  0  -0.15"/>
       <!-- <inertia ixx="4.9e-06" ixy="0" ixz="0" iyy="4.9e-06" iyz="0" izz="3.5e-08"/> -->
-      <cylinder_inertia m="0.5" r="0.015" h="0.4"/>
+      <xacro:cylinder_inertia m="0.5" r="0.015" h="0.4"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0   -0.16"/>
@@ -343,7 +329,7 @@
       <mass value="0.5"/>
       <origin rpy="0  0  0" xyz="0  0  -0.15"/>
       <!-- <inertia ixx="4.9e-06" ixy="0" ixz="0" iyy="4.9e-06" iyz="0" izz="3.5e-08"/> -->
-      <cylinder_inertia m="0.5" r="0.015" h="0.4"/>
+      <xacro:cylinder_inertia m="0.5" r="0.015" h="0.4"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0   -0.16"/>
@@ -363,7 +349,7 @@
       <mass value="1.2"/>
       <origin rpy="0  0  0" xyz="0  0  0.055"/>
       <!-- <inertia ixx="5.89e-06" ixy="0" ixz="0" iyy="5.89e-06" iyz="0" izz="1.12e-05"/> -->
-      <cylinder_inertia m="1.5" r="0.1" h="0.05"/>
+      <xacro:cylinder_inertia m="1.5" r="0.1" h="0.05"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0    0.055"/>
@@ -384,7 +370,7 @@
       <mass value="1.2"/>
       <origin rpy="0  0  0" xyz="0  0  -0.055"/>
       <!-- <inertia ixx="5.8e-06" ixy="0" ixz="0" iyy="5.8e-06" iyz="0" izz="1.1e-05"/> -->
-      <cylinder_inertia m="1.5" r="0.1" h="0.05"/>
+      <xacro:cylinder_inertia m="1.5" r="0.1" h="0.05"/>
     </inertial>
     <collision name="Movee__collision">
       <origin rpy="0  0  0" xyz="0    0    0.055"/>
@@ -403,15 +389,11 @@
    <!-- END of Robot description -->
 
 
-   <!-- Launch the plugin gazebo_ros_control, to enable a the controller_manager to spawn and be able to control the articulations of the robot -->
-  <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-       <!-- <robotNamespace>/movee</robotNamespace> -->
-       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType> 
-    </plugin>
-  </gazebo> 
 
-
+<!-- ###################################################GAZEBO PLUGINS######################################## -->
+<!-- ######################################################################################################### -->
+ <xacro:include filename="gazebo_plugins.xacro" />
+ 
 
 </robot>
  
