@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- This script spanw a robot in gazebo (with its state/joint publisher and controllers) -->
+<launch>
+
+<!-- Init the robot parameters if not done -->
+<arg name="init_pose" default="-x -1 -y 0 -z -0.32 -R 0 -P 0 -Y 0"/>
+<arg name="robot_name" default="Momo"/>
+<arg name="tf_prefix" default=""/>
+
+    
+<!-- Spawn the robot--> 
+  <node name="movee_robot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" respawn="false"
+          args="-urdf -param /robot_description -model $(arg robot_name) $(arg init_pose)" />
+
+ <!-- Load controllers parameters-->
+  <rosparam command="load" file="$(find movee_description)/config/joints.yaml" />
+ <!-- Load the controllers-->        
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" 
+          args="joint_state_controller
+                knee_pivot_left_position_controller
+                knee_pivot_right_position_controller
+                hip_pivot_left_position_controller
+                hip_pivot_right_position_controller               
+                mobile_base_controller
+                --timeout 10"
+  /> 
+
+   <!-- Combine joint values -->
+      <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            args="-tf_prefix $(arg tf_prefix)" 
+      /> <!--     A remettre pour activer le multi-robot-->
+      
+   <!-- Generate static tf -->
+      <node pkg="tf" type="static_transform_publisher" name="depth_sensor_link2depth_camera" args="0 0 0 0 0.0 0 $(arg tf_prefix)/depth_sensor_link $(arg tf_prefix)/depth_camera 1"/>
+      <node pkg="tf" type="static_transform_publisher" name="depth_sensor_link2depth_sensor" args="0 0 0 1.57 0.0 0 $(arg tf_prefix)/depth_sensor_link $(arg tf_prefix)/depth_sensor 1"/>
+      <node pkg="tf" type="static_transform_publisher" name="hk_link" args="0 0 0 0 0.0 0 $(arg tf_prefix)/hokuyo_link /hokuyo_link 1" />
+      <node pkg="tf" type="static_transform_publisher" name="base_link2base_link_tf" args="0 0 -0.33 0 0.0 0 /base_link $(arg tf_prefix)/base_link 1" />
+ <!-- The odometry estimator, throttling, fake laser etc. go here -->
+    <!-- All the stuff as from usual robot launch file -->
+
+
+</launch>

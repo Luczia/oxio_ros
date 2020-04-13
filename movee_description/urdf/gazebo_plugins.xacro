@@ -4,7 +4,7 @@
   <!-- Launch the plugin gazebo_ros_control, to enable a the controller_manager to spawn and be able to control the articulations of the robot -->
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-       <robotNamespace>${robot_namespace}</robotNamespace>
+       <!-- <robotNamespace>${robot_namespace}</robotNamespace> -->
        <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType> 
     </plugin>
   </gazebo> 
@@ -18,14 +18,14 @@
       <visualize>true</visualize>
       <topic>__default_topic__</topic>
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-        <topicName>imu</topicName>
-        <bodyName>imu_link</bodyName>
-        <robotNamespace>${robot_namespace}</robotNamespace>
+        <!-- <robotNamespace>${robot_namespace}</robotNamespace> -->
+        <topicName>/imu</topicName>
+        <bodyName>imu_link</bodyName>       
         <updateRateHZ>10.0</updateRateHZ>
         <gaussianNoise>0.0</gaussianNoise>
         <xyzOffset>0 0 0</xyzOffset>
         <rpyOffset>0 0 0</rpyOffset>
-        <frameName>imu_link</frameName>
+        <frameName>/imu_link</frameName>
       </plugin>
       <pose>0 0 0 0 0 0</pose>
     </sensor>
@@ -50,13 +50,14 @@
         </clip>
       </camera>
       <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <!-- <robotNamespace>${robot_namespace}</robotNamespace> -->
         <alwaysOn>true</alwaysOn>
         <updateRate>0.0</updateRate>
-        <cameraName>mybot/camera1</cameraName>
+        <cameraName>rrbot/camera1</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>camera</frameName>
-        <robotNamespace>${robot_namespace}</robotNamespace>
+        <frameName>camera_link</frameName>
+             
         <hackBaseline>0.07</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
@@ -98,9 +99,9 @@
         </noise>
       </ray>
       <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
-        <topicName>/mybot/laser/scan</topicName>
-        <frameName>hokuyo</frameName>
-        <robotNamespace>${robot_namespace}</robotNamespace>
+        <!-- <robotNamespace>/robot12</robotNamespace> -->
+        <topicName>/laser/scan</topicName>
+        <frameName>hokuyo_link</frameName>        
       </plugin>
     </sensor>
   </gazebo>
@@ -125,13 +126,13 @@
       <baseline>0.2</baseline>
       <alwaysOn>true</alwaysOn>
       <updateRate>1.0</updateRate>
-      <robotNamespace>${robot_namespace}</robotNamespace>
+      <!-- <robotNamespace>${robot_namespace}</robotNamespace> -->
       <cameraName>${depth_camera_name}_ir</cameraName>
-      <imageTopicName>/${depth_camera_name}/color/image_raw</imageTopicName>
-      <cameraInfoTopicName>/${depth_camera_name}/color/camera_info</cameraInfoTopicName>
-      <depthImageTopicName>/${depth_camera_name}/depth/image_raw</depthImageTopicName>
-      <depthImageInfoTopicName>/${depth_camera_name}/depth/camera_info</depthImageInfoTopicName>
-      <pointCloudTopicName>/${depth_camera_name}/depth/points</pointCloudTopicName>
+      <imageTopicName>/color/image_raw</imageTopicName>
+      <cameraInfoTopicName>/color/camera_info</cameraInfoTopicName>
+      <depthImageTopicName>/depth/image_raw</depthImageTopicName>
+      <depthImageInfoTopicName>/depth/camera_info</depthImageInfoTopicName>
+      <pointCloudTopicName>/depth/points</pointCloudTopicName> 
       <frameName>depth_sensor</frameName>
       <pointCloudCutoff>0.5</pointCloudCutoff>
       <pointCloudCutoffMax>3.0</pointCloudCutoffMax>

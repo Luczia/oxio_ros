@@ -5,8 +5,8 @@
 
   
   <!-- <xacro:include filename="$(find movee_description)/urdf/friction.xacro"/> -->
-  <xacro:include filename="inertia_matrix_macro.xacro"/> 
   <xacro:include filename="robot_parameters.xacro" />
+  <xacro:include filename="inertia_matrix_macro.xacro"/> 
   <xacro:include filename="friction.xacro"/>
   <xacro:include filename="sensors.xacro" />
   

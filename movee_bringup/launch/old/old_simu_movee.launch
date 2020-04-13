@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="ns" default="mov1"/>
+  <arg name="tf_prefix" default="$(arg ns)"/>
+  
+  <group  ns="mov1">
+  <!-- Define some movee specific variables -->
+  <arg name="training_wheels" default="false" />
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="-0.30"/>
+  <arg name="R" default="0" /> <!-- Roll Pitch Yaw-->
+  <arg name="P" default="0" />
+  <arg name="Y" default="0" />
+  
+
+  
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched (appart) -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+  <arg name="paused" value="true"/>
+  <arg name="use_sim_time" value="true"/>
+  <arg name="gui" value="true"/>
+  <arg name="recording" value="false"/>
+  <arg name="debug" value="false"/>
+  <arg name="world_name" value="$(find movee_gazebo)/worlds/appartb.world"/> 
+  </include>
+
+ <!-- Load the URDF in the ROS robot server with default values -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find movee_description)/urdf/movee.urdf' 
+     robot_namespace:=$(arg ns) training_wheels:=$(arg training_wheels) --inorder " />
+
+  <!-- <param name="robot_description" command="$(find xacro)/xacro '$(find teeterbot_description)/urdf/teeterbot.urdf.xacro' 
+  robot_name:=$(arg robot_name) training_wheels:=$(arg training_wheels) body_depth:=$(arg body_depth) body_width:=$(arg body_width) body_length:=$(arg body_length)
+    body_mass:=$(arg body_mass) wheel_mass:=$(arg wheel_mass) wheel_radius:=$(arg wheel_radius) $(arg ground_truth_arg) 
+  $(arg auto_reset_arg) auto_reset_delay:=$(arg auto_reset_delay) $(arg voltage_arg) $(arg torque_arg) $(arg speed_arg) -inorder" />   -->
+
+  <!-- Load controllers parameters-->
+  <rosparam command="load" file="$(find movee_description)/config/joints.yaml" />
+
+
+  <!-- <group ns="$(arg ns)">  Create a Group to enable mutli robot spawn in the future   -->
+        
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" 
+          args="joint_state_controller
+                knee_pivot_left_position_controller
+                knee_pivot_right_position_controller
+                hip_pivot_left_position_controller
+                hip_pivot_right_position_controller               
+                mobile_base_controller
+                --timeout 30"
+  /> 
+ 
+  <node name="movee_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-urdf -param robot_description -model Movee 
+          -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)" />
+        
+    <!-- send fake joint values -->
+     <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+         <param name="use_gui" value="False"/> 
+    </node>  -->    
+     <!-- <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/> -->
+
+    <!-- Combine joint values -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            args="-tf_prefix $(arg tf_prefix)"/>
+    
+    <!-- Generate a static tf -->
+    <node pkg="tf" type="static_transform_publisher" name="depth_sensor_link2depth_camera" args="0 0 0 0 0.0 0 $(arg tf_prefix)/depth_sensor_link $(arg tf_prefix)/depth_camera 1"/>
+
+    
+
+  </group>
+</launch>
