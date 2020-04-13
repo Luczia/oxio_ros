@@ -15,16 +15,24 @@
  <!-- Load controllers parameters-->
   <rosparam command="load" file="$(find movee_description)/config/joints.yaml" />
  <!-- Load the controllers-->        
-  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+  <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
           output="screen" 
           args="joint_state_controller
                 knee_pivot_left_position_controller
-                knee_pivot_right_position_controller
-                hip_pivot_left_position_controller
-                hip_pivot_right_position_controller               
-                mobile_base_controller
-                --timeout 10"
-  /> 
+               knee_pivot_right_position_controller
+               hip_pivot_left_position_controller
+               hip_pivot_right_position_controller     
+               mobile_base_controller
+                -timeout 10"
+  />  -->
+<!--
+   knee_pivot_left_position_controller
+   knee_pivot_right_position_controller
+   hip_pivot_left_position_controller
+   hip_pivot_right_position_controller     
+   mobile_base_controller -->
+
+   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
    <!-- Combine joint values -->
       <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
